@@ -31,6 +31,14 @@ test('renders the tub scene and supports controls', async ({ page }) => {
   expect(Buffer.compare(beforeDrag, afterDrag)).not.toBe(0);
 
   await page.getByRole('button', { name: 'Turn the season' }).click();
-  await expect(page.getByText('Before dawn')).toBeVisible();
-  await expect(page.getByText('Huizi arrives expecting tears.')).toBeVisible();
+  await expect(page.getByText('Second season')).toBeVisible();
+  await expect(page.getByText('Huizi arrives at the grave expecting tears.')).toBeVisible();
+
+  await page.getByRole('button', { name: 'Turn the season' }).click();
+  await expect(page.getByText('Third season')).toBeVisible();
+  await expect(page.getByText('Huizi and the gravestone stay in place')).toBeVisible();
+
+  await page.getByRole('button', { name: 'Turn the season' }).click();
+  await expect(page.getByText('Fourth season')).toBeVisible();
+  await expect(page.getByText("Huizi's wife hangs weightless")).toBeVisible();
 });

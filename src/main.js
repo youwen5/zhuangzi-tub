@@ -54,10 +54,13 @@ controls.update();
 const clock = new THREE.Clock();
 const group = new THREE.Group();
 scene.add(group);
+const hallGroup = new THREE.Group();
+hallGroup.visible = false;
+scene.add(hallGroup);
 
 const seasons = [
   {
-    name: "Late night",
+    name: "First season",
     story:
       "His wife lies nearby. Zhuangzi answers grief with rhythm: not coldness, but a stubborn little song for transformation.",
     caption:
@@ -67,30 +70,46 @@ const seasons = [
     moon: 0xd9ecff,
     leaf: 0x6f8fa3,
     robe: 0x3f6e8c,
+    hall: false,
   },
   {
-    name: "Before dawn",
+    name: "Second season",
     story:
-      "Huizi arrives expecting tears. Zhuangzi keeps time on the tub, which is either wisdom or extremely bold hosting.",
+      "Huizi arrives at the grave expecting tears. Zhuangzi keeps time on the tub, which is either wisdom or extremely bold hosting.",
     caption:
-      "Huizi arrives and checks whether this is philosophy or just poor neighbor etiquette.",
+      "Huizi stands beside the gravestone and checks whether this is philosophy or just poor neighbor etiquette.",
     sky: 0x28324a,
     fog: 0x1d2638,
     moon: 0xffd6a2,
     leaf: 0xc6a75c,
     robe: 0x557783,
+    hall: false,
   },
   {
-    name: "Morning",
+    name: "Third season",
     story:
-      "The courtyard brightens. Death, life, form, and sound keep moving, with one dry tub doing more than its manufacturer expected.",
+      "The same grave and the same friend remain, but the air has changed: colder light, thinner mist, and a quieter kind of attention.",
     caption:
-      "Grief has not vanished. It has changed tempo and borrowed a kitchen tub.",
-    sky: 0xb9d8d0,
-    fog: 0xb9d8d0,
-    moon: 0xfff0c7,
-    leaf: 0x79a86b,
-    robe: 0x6b8d72,
+      "Huizi and the gravestone stay in place while the world shifts around them.",
+    sky: 0x4f6d78,
+    fog: 0x334852,
+    moon: 0xbfe8ff,
+    leaf: 0x8fae9d,
+    robe: 0x5f8176,
+    hall: false,
+  },
+  {
+    name: "Fourth season",
+    story:
+      "The courtyard falls away. In the great hall of the universe, Huizi's wife floats in the open dark with sparks gathering around her.",
+    caption:
+      "Huizi's wife hangs weightless among slow pillars of light and ethereal sparks.",
+    sky: 0x050713,
+    fog: 0x080a18,
+    moon: 0xd8c5ff,
+    leaf: 0xe7d3ff,
+    robe: 0x806aa8,
+    hall: true,
   },
 ];
 
@@ -312,6 +331,10 @@ scene.add(moonLight);
 const warmLight = new THREE.PointLight(0xffba6b, 1.8, 10);
 warmLight.position.set(1.6, 1.8, 1.4);
 scene.add(warmLight);
+
+const hallLight = new THREE.PointLight(0xd8c5ff, 0, 12);
+hallLight.position.set(0, 2.4, 1.8);
+scene.add(hallLight);
 
 const floor = addMesh(
   new THREE.Mesh(new THREE.CircleGeometry(7.5, 96), mat.ground),
@@ -661,6 +684,140 @@ for (let i = 0; i < 42; i += 1) {
 spirit.position.set(1.15, 0.5, -1.12);
 group.add(spirit);
 
+const hallMaterials = {
+  floor: new THREE.MeshStandardMaterial({
+    color: 0x13172f,
+    roughness: 0.58,
+    metalness: 0.18,
+    transparent: true,
+    opacity: 0.88,
+  }),
+  pillar: new THREE.MeshStandardMaterial({
+    color: 0x6f6f9b,
+    emissive: 0x1d2556,
+    emissiveIntensity: 0.5,
+    roughness: 0.36,
+    metalness: 0.2,
+  }),
+  ring: new THREE.MeshBasicMaterial({
+    color: 0xd8c5ff,
+    transparent: true,
+    opacity: 0.46,
+  }),
+  star: new THREE.MeshBasicMaterial({
+    color: 0xffe6b5,
+    transparent: true,
+    opacity: 0.82,
+  }),
+  gown: new THREE.MeshStandardMaterial({
+    color: 0xcfc0ff,
+    emissive: 0x4b3d91,
+    emissiveIntensity: 0.48,
+    roughness: 0.62,
+    transparent: true,
+    opacity: 0.86,
+  }),
+};
+
+const hallFloor = new THREE.Mesh(
+  new THREE.CircleGeometry(8.5, 128),
+  hallMaterials.floor,
+);
+hallFloor.rotation.x = -Math.PI / 2;
+hallFloor.position.y = -0.45;
+hallFloor.receiveShadow = true;
+hallGroup.add(hallFloor);
+
+const hallRings = [];
+for (let i = 0; i < 4; i += 1) {
+  const ring = new THREE.Mesh(
+    new THREE.TorusGeometry(1.6 + i * 0.72, 0.018, 10, 120),
+    hallMaterials.ring,
+  );
+  ring.rotation.x = Math.PI / 2;
+  ring.position.y = 1.2 + i * 0.18;
+  ring.userData = { speed: 0.08 + i * 0.035, phase: i * 0.9 };
+  hallGroup.add(ring);
+  hallRings.push(ring);
+}
+
+for (let i = 0; i < 10; i += 1) {
+  const angle = (i / 10) * Math.PI * 2;
+  const column = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.08, 0.14, 4.4, 18),
+    hallMaterials.pillar,
+  );
+  column.position.set(Math.cos(angle) * 4.1, 1.45, Math.sin(angle) * 4.1);
+  column.rotation.z = Math.sin(angle) * 0.08;
+  column.castShadow = true;
+  hallGroup.add(column);
+}
+
+const hallWife = new THREE.Group();
+const hallWifeBody = new THREE.Mesh(
+  new THREE.CapsuleGeometry(0.24, 0.88, 8, 20),
+  hallMaterials.gown,
+);
+hallWifeBody.position.y = 1.28;
+const hallWifeHead = new THREE.Mesh(
+  new THREE.SphereGeometry(0.18, 28, 28),
+  wifeFaceMaterial,
+);
+hallWifeHead.position.y = 1.9;
+hallWifeHead.scale.set(1.04, 1.1, 0.92);
+const hallWifeHair = new THREE.Mesh(
+  new THREE.SphereGeometry(0.2, 24, 14),
+  mat.wifeHair,
+);
+hallWifeHair.position.set(0, 1.9, -0.05);
+hallWifeHair.scale.set(1.04, 0.92, 0.86);
+const hallWifeSleeveLeft = new THREE.Mesh(
+  new THREE.CapsuleGeometry(0.055, 0.58, 8, 12),
+  hallMaterials.gown,
+);
+hallWifeSleeveLeft.position.set(-0.32, 1.42, 0.03);
+hallWifeSleeveLeft.rotation.z = -0.72;
+const hallWifeSleeveRight = new THREE.Mesh(
+  new THREE.CapsuleGeometry(0.055, 0.58, 8, 12),
+  hallMaterials.gown,
+);
+hallWifeSleeveRight.position.set(0.32, 1.42, 0.03);
+hallWifeSleeveRight.rotation.z = 0.72;
+const hallWifeTrain = new THREE.Mesh(
+  new THREE.ConeGeometry(0.42, 1.15, 36, 1, true),
+  hallMaterials.gown,
+);
+hallWifeTrain.position.y = 0.58;
+hallWifeTrain.rotation.x = Math.PI;
+hallWife.add(
+  hallWifeBody,
+  hallWifeHead,
+  hallWifeHair,
+  hallWifeSleeveLeft,
+  hallWifeSleeveRight,
+  hallWifeTrain,
+);
+hallWife.position.set(0, 0.06, -0.12);
+hallGroup.add(hallWife);
+
+const hallSparks = [];
+for (let i = 0; i < 120; i += 1) {
+  const spark = new THREE.Mesh(
+    new THREE.SphereGeometry(0.012 + Math.random() * 0.026, 10, 10),
+    hallMaterials.star,
+  );
+  const angle = Math.random() * Math.PI * 2;
+  spark.userData = {
+    angle,
+    radius: 0.45 + Math.random() * 2.6,
+    speed: 0.16 + Math.random() * 0.54,
+    height: 0.2 + Math.random() * 2.7,
+    phase: Math.random() * Math.PI * 2,
+  };
+  hallGroup.add(spark);
+  hallSparks.push(spark);
+}
+
 const leafGroup = new THREE.Group();
 for (let i = 0; i < 34; i += 1) {
   const leaf = new THREE.Mesh(new THREE.PlaneGeometry(0.12, 0.045), mat.leaf);
@@ -741,6 +898,7 @@ function triggerBeat() {
 
 function applySeasonState() {
   const season = seasons[seasonIndex];
+  const isHall = season.hall;
   storyText.textContent = season.story;
   captionTitle.textContent = season.name;
   captionText.textContent = season.caption;
@@ -749,11 +907,25 @@ function applySeasonState() {
   moon.material.color.setHex(season.moon);
   moon.material.emissive.setHex(season.moon);
 
+  group.visible = !isHall;
+  hallGroup.visible = isHall;
   wife.visible = seasonIndex === 0;
-  huishi.visible = seasonIndex >= 1;
-  sign.visible = seasonIndex >= 1;
-  spirit.visible = seasonIndex !== 1;
-  grave.visible = seasonIndex !== 1;
+  huishi.visible = !isHall;
+  sign.visible = seasonIndex === 1 || seasonIndex === 2;
+  grave.visible = seasonIndex === 1 || seasonIndex === 2;
+  spirit.visible = false;
+  moon.visible = !isHall;
+  hallLight.intensity = isHall ? 3.2 : 0;
+  warmLight.intensity = isHall ? 0.2 : warmLight.intensity;
+
+  if (isHall) {
+    camera.position.set(4.2, 2.7, 5.7);
+    controls.target.set(0, 1.25, 0);
+  } else {
+    camera.position.set(5.2, 3.1, 7.6);
+    controls.target.set(0.15, 1.05, 0.05);
+  }
+  controls.update();
 }
 
 function turnSeason() {
@@ -820,7 +992,12 @@ function animate() {
   tub.rotation.z = tubAngle;
   drumSkin.scale.setScalar(1 + beat * 0.015);
   strikePatch.scale.setScalar(1 + beat * 0.05);
-  warmLight.intensity = 1.6 + beat * 1.6 + Math.sin(elapsed * 1.3) * 0.12;
+  warmLight.intensity = target.hall
+    ? 0.2
+    : 1.6 + beat * 1.6 + Math.sin(elapsed * 1.3) * 0.12;
+  hallLight.intensity = target.hall
+    ? 2.8 + Math.sin(elapsed * 0.9) * 0.45
+    : 0;
 
   huishi.rotation.z = Math.sin(elapsed * 1.7) * 0.035;
   huishi.position.y = Math.sin(elapsed * 1.1) * 0.018;
@@ -834,6 +1011,26 @@ function animate() {
       data.y + Math.sin(elapsed * data.speed + data.angle) * 0.08,
       Math.sin(angle) * data.radius,
     );
+  });
+
+  hallWife.position.y = 0.06 + Math.sin(elapsed * 0.82) * 0.12;
+  hallWife.rotation.y = Math.sin(elapsed * 0.38) * 0.28;
+  hallWife.rotation.z = Math.sin(elapsed * 0.52) * 0.045;
+  hallRings.forEach((ring) => {
+    ring.rotation.z = elapsed * ring.userData.speed + ring.userData.phase;
+    ring.position.y = 1.2 + Math.sin(elapsed * 0.5 + ring.userData.phase) * 0.12;
+    ring.material.opacity = 0.34 + Math.sin(elapsed * 0.7 + ring.userData.phase) * 0.12;
+  });
+  hallSparks.forEach((spark) => {
+    const data = spark.userData;
+    const angle = data.angle + elapsed * data.speed;
+    const breathe = Math.sin(elapsed * 0.64 + data.phase) * 0.18;
+    spark.position.set(
+      Math.cos(angle) * (data.radius + breathe),
+      data.height + Math.sin(elapsed * data.speed + data.phase) * 0.18,
+      Math.sin(angle) * (data.radius + breathe),
+    );
+    spark.material.opacity = 0.48 + Math.sin(elapsed * 1.8 + data.phase) * 0.32;
   });
 
   leafGroup.children.forEach((leaf) => {
