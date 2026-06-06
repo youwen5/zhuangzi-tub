@@ -103,7 +103,7 @@ const seasons = [
     story:
       "The courtyard falls away. In the great hall of the universe, Huizi's wife floats in the open dark with sparks gathering around her.",
     caption:
-      "Huizi's wife hangs weightless among slow pillars of light and ethereal sparks.",
+      "Zhuangzi's wife hangs weightless among slow pillars of light and ethereal sparks.",
     sky: 0x050713,
     fog: 0x080a18,
     moon: 0xd8c5ff,
@@ -977,7 +977,12 @@ function animate() {
   const leftShoulderPoint = tunedArmPoint("left", -0.08, 1.24, 0.46);
   const rightShoulderPoint = tunedArmPoint("right", -0.08, 1.24, -0.62);
   const leftHandPoint = tunedArmPoint("left", 0.04, 1.03 - beat * 0.08, 0.82);
-  const rightHandPoint = tunedArmPoint("right", 0.04, 1.03 - beat * 0.08, -0.36);
+  const rightHandPoint = tunedArmPoint(
+    "right",
+    0.04,
+    1.03 - beat * 0.08,
+    -0.36,
+  );
   const leftStrikePoint = new THREE.Vector3(0.0, 1.05 - beat * 0.2, 0.78);
   const rightStrikePoint = new THREE.Vector3(0.42, 1.05 - beat * 0.2, 0.38);
   alignCylinderBetween(connectedLeftArm, leftShoulderPoint, leftHandPoint);
@@ -995,9 +1000,7 @@ function animate() {
   warmLight.intensity = target.hall
     ? 0.2
     : 1.6 + beat * 1.6 + Math.sin(elapsed * 1.3) * 0.12;
-  hallLight.intensity = target.hall
-    ? 2.8 + Math.sin(elapsed * 0.9) * 0.45
-    : 0;
+  hallLight.intensity = target.hall ? 2.8 + Math.sin(elapsed * 0.9) * 0.45 : 0;
 
   huishi.rotation.z = Math.sin(elapsed * 1.7) * 0.035;
   huishi.position.y = Math.sin(elapsed * 1.1) * 0.018;
@@ -1018,8 +1021,10 @@ function animate() {
   hallWife.rotation.z = Math.sin(elapsed * 0.52) * 0.045;
   hallRings.forEach((ring) => {
     ring.rotation.z = elapsed * ring.userData.speed + ring.userData.phase;
-    ring.position.y = 1.2 + Math.sin(elapsed * 0.5 + ring.userData.phase) * 0.12;
-    ring.material.opacity = 0.34 + Math.sin(elapsed * 0.7 + ring.userData.phase) * 0.12;
+    ring.position.y =
+      1.2 + Math.sin(elapsed * 0.5 + ring.userData.phase) * 0.12;
+    ring.material.opacity =
+      0.34 + Math.sin(elapsed * 0.7 + ring.userData.phase) * 0.12;
   });
   hallSparks.forEach((spark) => {
     const data = spark.userData;
